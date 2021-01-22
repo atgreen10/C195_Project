@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="464.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.mainMenuController">
+   <children>
+      <VBox layoutX="212.0" layoutY="126.0" prefHeight="307.0" prefWidth="177.0" AnchorPane.leftAnchor="212.0">
+         <VBox.margin>
+            <Insets bottom="50.0" top="200.0" />
+         </VBox.margin>
+         <children>
+            <Button fx:id="customerBtn" mnemonicParsing="false" onMouseClicked="#customerBtnHandler" prefHeight="37.0" prefWidth="178.0" style="-fx-background-radius: 15;" text="Customers">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="50.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="appointmentBtn" mnemonicParsing="false" onMouseClicked="#appointmentBtnHandler" prefHeight="39.0" prefWidth="178.0" style="-fx-background-radius: 15;" text="Appointments">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="50.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="reportBtn" mnemonicParsing="false" onMouseClicked="#reportBtnHandler" prefHeight="39.0" prefWidth="178.0" style="-fx-background-radius: 15;" text="Reports">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="50.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="exitBtn" mnemonicParsing="false" onMouseClicked="#exitBtnHandler" prefHeight="37.0" prefWidth="178.0" style="-fx-background-radius: 15;" text="Exit">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+      <Label prefHeight="45.0" prefWidth="160.0" />
+      <Label alignment="TOP_CENTER" layoutX="191.0" layoutY="36.0" prefHeight="60.0" prefWidth="218.0" text="Where to?" underline="true">
+         <font>
+            <Font name="System Bold" size="36.0" />
+         </font>
+      </Label>
+   </children>
+   <VBox.margin>
+      <Insets bottom="50.0" />
+   </VBox.margin>
+</AnchorPane>
