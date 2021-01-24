@@ -10,6 +10,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import model.Customer;
+import utils.DBConnection;
+import utils.DBQuery;
 import utils.requests;
 
 import java.io.IOException;
@@ -24,6 +26,10 @@ public class customerController {
     Stage stage;
     private final ResultSet customerRS = new requests().getCustomerData();
     private final ResultSet statesRS = new requests().getStates();
+    private final ResultSet countryRS = new requests().getCountry();
+    ObservableList<String> states = observableArrayList();
+    ObservableList<String> country = observableArrayList();
+    ObservableList<String> tempCountry = observableArrayList();
 
     @FXML
     private final ResultSetMetaData metaData = customerRS.getMetaData();
@@ -257,6 +263,7 @@ public class customerController {
         return customers;
     }
 
+
     /** Gets all divisions from the database so they can be assigned to the combobox */
     public ObservableList<String> getStates() throws SQLException{
         ObservableList<String> states = observableArrayList();
@@ -272,10 +279,36 @@ public class customerController {
         return states;
     }
 
-    private void stateComboBox() throws SQLException {
-        System.out.println(getStates());
+    /** Assigns the states retrieved from the DB to the comboBox on the GUI */
+    public void stateComboBox() throws SQLException {
+        customerState.setItems(getStates());
+    }
 
+    /** Gets all countries from the database so they can be assigned to the combobox */
+    public ObservableList<String> getCountries()  throws SQLException{
+        int index = 0;
+        while(true){
+            if(countryRS.next()){
+                country.add(countryRS.getString("country"));
+                index++;
+            } else{
+                break;
+            }
+        }
+        return country;
+    }
 
+    public void countryComboBox() throws SQLException{
+        customerCountry.setItems(getCountries());
+        }
+
+    public int getSelectedCountryID() throws SQLException {
+        String selectedCountry = this.customerCountry.getAccessibleText();
+        ResultSet selectCountry = DBConnection.startConnection().createStatement().executeQuery("SELECT COUNTRY_ID FROM countries WHERE country = " + selectedCountry);
+        selectCountry.next();
+        int countryID = selectCountry.getInt("COUNTRY_ID");
+        System.out.println(countryID);
+        return countryID;
     }
 
 
@@ -289,8 +322,10 @@ public class customerController {
     public void initialize() throws SQLException {
         createColumns();
         setTableData();
-        getStates();
+
         stateComboBox();
+        countryComboBox();
+        getStates();
     }
 
 

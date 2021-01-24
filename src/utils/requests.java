@@ -45,13 +45,23 @@ public class requests {
 
     /** gets all first_level_divisions for combo box */
     public ResultSet getStates() throws SQLException {
-        String states = "SELECT Division FROM first_level_divisions";
-        DBQuery.setPreparedStatement(Main.conn, states);
-        PreparedStatement st = DBQuery.getPreparedStatement();
-        st.execute(states);
-        ResultSet rs = st.getResultSet();
-        return rs;
+        return DBConnection.startConnection().createStatement().executeQuery("SELECT * FROM first_level_divisions");
+    }
+    public static ResultSet getUSLocations() throws SQLException {
+        return DBConnection.startConnection().createStatement().executeQuery("SELECT Division FROM first_level_divisions WHERE COUNTRY_ID = 1");
 
+}
+
+    public static ResultSet getUKLocations() throws SQLException{
+        return DBConnection.startConnection().createStatement().executeQuery("SELECT Division FROM first_level_divisions WHERE COUNTRY_ID = 2");
+}
+
+    public static ResultSet getCanadaLocations() throws SQLException{
+        return DBConnection.startConnection().createStatement().executeQuery("SELECT Division FROM first_level_divisions WHERE COUNTRY_ID = 3");
+    }
+
+    public ResultSet getCountry() throws SQLException{
+        return DBConnection.startConnection().createStatement().executeQuery("SELECT * FROM countries");
     }
 
 }
