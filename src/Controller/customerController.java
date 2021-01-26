@@ -1,6 +1,7 @@
 package Controller;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,8 +11,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import model.Customer;
-import utils.DBConnection;
-import utils.DBQuery;
 import utils.requests;
 
 import java.io.IOException;
@@ -25,11 +24,14 @@ public class customerController {
 
     Stage stage;
     private final ResultSet customerRS = new requests().getCustomerData();
-    private final ResultSet statesRS = new requests().getStates();
+    private ResultSet statesRS = new requests().getStates();
     private final ResultSet countryRS = new requests().getCountry();
-    ObservableList<String> states = observableArrayList();
+    ObservableList<String> usStates = observableArrayList();
     ObservableList<String> country = observableArrayList();
-    ObservableList<String> tempCountry = observableArrayList();
+    ObservableList<String> firstDivision = observableArrayList();
+    String selected;
+
+    int countryID;
 
     @FXML
     private final ResultSetMetaData metaData = customerRS.getMetaData();
@@ -92,9 +94,14 @@ public class customerController {
     }
 
     @FXML
-    void customerCountryHandler(MouseEvent event) {
+    void customerCountryHandler(ActionEvent event) throws SQLException {
+        selected = customerCountry.getValue();
+
+        getSelectedCountryID();
 
     }
+
+
 
     @FXML
     void customerStateHandler(MouseEvent event) throws SQLException {
@@ -281,7 +288,7 @@ public class customerController {
 
     /** Assigns the states retrieved from the DB to the comboBox on the GUI */
     public void stateComboBox() throws SQLException {
-        customerState.setItems(getStates());
+        customerState.setItems(getSelectedCountryID());
     }
 
     /** Gets all countries from the database so they can be assigned to the combobox */
@@ -300,20 +307,65 @@ public class customerController {
 
     public void countryComboBox() throws SQLException{
         customerCountry.setItems(getCountries());
-        }
+        selected = customerCountry.getValue();
 
-    public int getSelectedCountryID() throws SQLException {
-        String selectedCountry = this.customerCountry.getAccessibleText();
-        ResultSet selectCountry = DBConnection.startConnection().createStatement().executeQuery("SELECT COUNTRY_ID FROM countries WHERE country = " + selectedCountry);
-        selectCountry.next();
-        int countryID = selectCountry.getInt("COUNTRY_ID");
-        System.out.println(countryID);
-        return countryID;
     }
 
-
-
-
+    public ObservableList<String> getSelectedCountryID() throws SQLException {
+            while(statesRS.next()) {
+                if (selected.contains("U.S")) {
+                    countryID = 1;
+                    try {
+                        statesRS = requests.getUSLocations();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    String USstates = null;
+                    try {
+                        USstates = statesRS.getString("division");
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    firstDivision.add(USstates);
+                    return firstDivision;
+                }
+                else if(selected.contains("UK")){
+                    countryID = 2;
+                    try {
+                        statesRS = requests.getUKLocations();
+                    } catch(SQLException throwables){
+                        throwables.printStackTrace();
+                    }
+                    String UKlocations = null;
+                    try{
+                        UKlocations = statesRS.getString("division");
+                    }
+                    catch(SQLException throwables){
+                        throwables.printStackTrace();
+                    }
+                    firstDivision.add(UKlocations);
+                    return firstDivision;
+                }
+                else if(selected.contains("Canada")){
+                    countryID = 3;
+                    try {
+                        statesRS = requests.getCanadaLocations();
+                    } catch(SQLException throwables){
+                        throwables.printStackTrace();
+                    }
+                    String canadaLocations = null;
+                    try{
+                        canadaLocations = statesRS.getString("division");
+                    }
+                    catch(SQLException throwables){
+                        throwables.printStackTrace();
+                    }
+                    firstDivision.add(canadaLocations);
+                    return firstDivision;
+                }
+            }
+            return null;
+    }
 
 
     /**
