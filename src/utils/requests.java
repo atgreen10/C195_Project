@@ -1,6 +1,5 @@
 package utils;
 
-import model.Customer;
 import sample.Main;
 
 
@@ -10,12 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static utils.DBQuery.getStatement;
+
 public class requests {
 
     /** gets the usernames that are in the database. */
    public static ResultSet getUserName() throws SQLException {
        DBQuery.setStatement(Main.conn);
-       Statement statement = DBQuery.getStatement();
+       Statement statement = getStatement();
 
        String acceptedUsernames = "SELECT user_name FROM users";
        statement.execute(acceptedUsernames);
@@ -60,8 +61,25 @@ public class requests {
         return DBConnection.startConnection().createStatement().executeQuery("SELECT Division FROM first_level_divisions WHERE COUNTRY_ID = 3");
     }
 
-    public ResultSet getCountry() throws SQLException{
+    public ResultSet getCountry() throws SQLException {
         return DBConnection.startConnection().createStatement().executeQuery("SELECT * FROM countries");
     }
 
-}
+        public static ResultSet getCustomerID () throws SQLException {
+            DBQuery.setStatement(Main.conn);
+            Statement statement = getStatement();
+
+            String customerID = "SELECT customer_ID FROM customers";
+            statement.execute(customerID);
+            ResultSet custID = statement.getResultSet();
+            return custID;
+        }
+
+        public static ResultSet reloadCustomerTable () throws SQLException {
+            Statement statement = getStatement();
+            String allCustomers = "SELECT * FROM customers";
+            statement.execute(allCustomers);
+            ResultSet reload = statement.getResultSet();
+            return reload;
+        }
+    }

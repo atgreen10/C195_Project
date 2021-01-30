@@ -19,18 +19,39 @@
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
-      <TableView fx:id="customerTable" layoutX="24.0" layoutY="107.0" prefHeight="300.0" prefWidth="802.0" />
+      <TableView fx:id="customerTable" layoutX="21.0" layoutY="99.0" onMouseClicked="#editClickedCustomer" prefHeight="300.0" prefWidth="802.0" />
       <Button fx:id="submitBtn" layoutX="359.0" layoutY="758.0" mnemonicParsing="false" onMouseClicked="#submitBtnHandler" prefHeight="32.0" prefWidth="79.0" text="Submit" />
       <Label layoutX="321.0" layoutY="425.0" text="New Customer Info">
          <font>
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
-      <HBox alignment="TOP_CENTER" layoutX="14.0" layoutY="450.0" prefHeight="300.0" prefWidth="802.0">
+      <HBox layoutX="14.0" layoutY="457.0" prefHeight="300.0" prefWidth="802.0">
          <children>
             <VBox prefHeight="275.0" prefWidth="316.0">
                <children>
                   <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="30.0" prefWidth="274.0">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="40.0" prefHeight="30.0" prefWidth="274.0">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="175.0" text="Customer ID">
+                           <HBox.margin>
+                              <Insets right="55.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextField fx:id="customerIDText" disable="true" prefHeight="25.0" prefWidth="251.0" promptText="Auto Generated" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="70.0" prefHeight="30.0" prefWidth="274.0">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
                      <children>
                         <Label prefHeight="17.0" prefWidth="175.0" text="Name">
                            <HBox.margin>
@@ -39,11 +60,8 @@
                         </Label>
                         <TextField fx:id="customerNameText" prefHeight="25.0" prefWidth="251.0" />
                      </children>
-                     <VBox.margin>
-                        <Insets bottom="20.0" />
-                     </VBox.margin>
                   </HBox>
-                  <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="40.0" prefHeight="30.0" prefWidth="274.0">
+                  <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="174.0" prefHeight="36.0" prefWidth="316.0">
                      <children>
                         <Label prefHeight="17.0" prefWidth="175.0" text="Address">
                            <HBox.margin>
@@ -52,22 +70,52 @@
                         </Label>
                         <TextField fx:id="customerAddressText" prefHeight="25.0" prefWidth="251.0" />
                      </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="37.0" prefWidth="329.0">
+                     <children>
+                        <HBox alignment="TOP_RIGHT" prefHeight="36.0" prefWidth="316.0">
+                           <children>
+                              <Label prefHeight="17.0" prefWidth="175.0" text="Postal Code">
+                                 <HBox.margin>
+                                    <Insets bottom="20.0" right="55.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField fx:id="customerPostCodeText" prefHeight="25.0" prefWidth="251.0">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                           <HBox.margin>
+                              <Insets top="10.0" />
+                           </HBox.margin>
+                        </HBox>
+                     </children>
+                  </HBox>
+               </children>
+               <HBox.margin>
+                  <Insets right="100.0" top="25.0" />
+               </HBox.margin>
+            </VBox>
+            <VBox layoutX="10.0" layoutY="35.0" prefHeight="258.0" prefWidth="316.0">
+               <children>
+                  <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="30.0" prefWidth="274.0">
                      <VBox.margin>
                         <Insets bottom="20.0" />
                      </VBox.margin>
                   </HBox>
                   <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="70.0" prefHeight="30.0" prefWidth="274.0">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
                      <children>
-                        <Label prefHeight="17.0" prefWidth="175.0" text="Postal Code">
+                        <Label prefHeight="17.0" prefWidth="175.0" text="Phone Number">
                            <HBox.margin>
                               <Insets bottom="20.0" right="55.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField fx:id="customerPostCodeText" prefHeight="25.0" prefWidth="251.0" />
+                        <TextField fx:id="customerPhoneText" prefHeight="25.0" prefWidth="251.0" />
                      </children>
-                     <VBox.margin>
-                        <Insets bottom="20.0" />
-                     </VBox.margin>
                   </HBox>
                   <HBox alignment="TOP_RIGHT" prefHeight="36.0" prefWidth="316.0">
                      <children>
@@ -94,7 +142,7 @@
                   </HBox>
                </children>
                <HBox.margin>
-                  <Insets right="100.0" top="25.0" />
+                  <Insets top="25.0" />
                </HBox.margin>
             </VBox>
          </children>

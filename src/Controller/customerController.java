@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import model.Customer;
+import utils.DBQuery;
 import utils.requests;
 
 import java.io.IOException;
@@ -19,16 +20,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static javafx.collections.FXCollections.observableArrayList;
+import static jdk.javadoc.internal.tool.Main.execute;
 
 public class customerController {
 
     Stage stage;
+    Parent scene;
     private final ResultSet customerRS = new requests().getCustomerData();
     private ResultSet statesRS = new requests().getStates();
     private final ResultSet countryRS = new requests().getCountry();
-    ObservableList<String> usStates = observableArrayList();
+    private final ResultSet customerIDRS = requests.getCustomerID();
     ObservableList<String> country = observableArrayList();
     ObservableList<String> firstDivision = observableArrayList();
+    ObservableList<Customer> customerList = observableArrayList();
+    String customerID;
+    String customerSelectedState;
+    String customerSelectedCountry;
 
     int countryID;
 
@@ -75,6 +82,9 @@ public class customerController {
     private Button submitBtn;
 
     @FXML
+    private TextField customerIDText;
+
+    @FXML
     private TextField customerNameText;
 
     @FXML
@@ -84,10 +94,16 @@ public class customerController {
     private TextField customerPostCodeText;
 
     @FXML
+    private TextField customerPhoneText;
+
+    @FXML
     private ComboBox<String> customerState;
 
     @FXML
     private ComboBox<String> customerCountry;
+
+
+
 
     public customerController() throws SQLException {
     }
@@ -102,17 +118,17 @@ public class customerController {
 
     @FXML
     void customerStateHandler(MouseEvent event) throws SQLException {
-
-
     }
 
     @FXML
-    void submitBtnHandler(MouseEvent event) {
-       /* String customerName = customerNameText.getText();
-        String customerAddress = customerAddressText.getText();
-        String customerPostCode = customerPostCodeText.getText();
-        String customer */
+    void submitBtnHandler(MouseEvent event) throws SQLException, IOException {
+        createCustomer();
 
+
+        stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+        scene = FXMLLoader.load(getClass().getResource("/View/mainMenu.fxml"));
+        stage.setScene(new Scene(scene));
+        stage.show();
     }
 
 
@@ -284,8 +300,11 @@ public class customerController {
     }
 
     /** Assigns the states retrieved from the DB to the comboBox on the GUI */
-    public void stateComboBox() throws SQLException {
-       customerState.setItems(getStates()); }
+    public String stateComboBox() throws SQLException {
+       customerState.setItems(getStates());
+       customerSelectedState = customerState.getSelectionModel().getSelectedItem();
+       return customerSelectedState;
+    }
 
 
     /** Gets all countries from the database so they can be assigned to the combobox */
@@ -302,17 +321,21 @@ public class customerController {
         return country;
     }
 
-    public void countryComboBox() throws SQLException{
+    /** Sets up the combo box for listed countries */
+    public void countryComboBox() throws SQLException {
         customerCountry.setItems(getCountries());
-
     }
 
-    public void getSelectedCountryID() throws SQLException {
+    /** Gets the customers country information and changes the states that are visible in the state combo box. */
+    public int getSelectedCountryID() throws SQLException {
         String selected = customerCountry.getValue();
             int index = 0;
             if (selected.contains("U.S")) {
+                firstDivision.clear();
                 ResultSet states = requests.getUSLocations();
                 countryID = 1;
+                customerSelectedCountry = "U.S";
+                System.out.println(customerSelectedCountry);
                 while (states.next()) {
                     firstDivision.add(states.getString("Division"));
                     index++;
@@ -323,6 +346,8 @@ public class customerController {
                 firstDivision.clear();
                 ResultSet divisions = requests.getUKLocations();
                 countryID = 2;
+                customerSelectedCountry = "UK";
+                System.out.println(customerSelectedCountry);
                 while (divisions.next()) {
                     firstDivision.add(divisions.getString("Division"));
                     index++;
@@ -333,17 +358,139 @@ public class customerController {
                 firstDivision.clear();
                 ResultSet province = requests.getCanadaLocations();
                 countryID = 3;
+                customerSelectedCountry = "Canada";
+                System.out.println(customerSelectedCountry);
                 while (province.next()) {
                     firstDivision.add(province.getString("Division"));
                     index++;
                 }
                 customerState.setItems(firstDivision);
             }
+            return countryID;
         }
+
+
+    public String customerName() throws SQLException {
+        String customerName = customerNameText.getText();
+
+        if (customerName.isEmpty() || customerName.length() > 50) {
+            String error = "Customer name should be between 1-50 characters";
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Customer name is invalid");
+            alert.setContentText(error);
+
+            alert.showAndWait();
+        }
+        return customerName;
+    }
+
+    /**Gets the new customer address from the GUI menu for the new customer object. */
+    public String customerAddress(){
+        String customerAddress = customerAddressText.getText();
+
+        if (customerAddress.isEmpty() || customerAddress.length() > 100) {
+            String error = "Invalid Customer Address";
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Customer name is invalid");
+            alert.setContentText(error);
+
+            alert.showAndWait();
+        }
+        return customerAddress;
+    }
+
+    /** Gets the customer post code text field info from the user and assigns it to a variable to be included in the
+     * Customer object uploaded to the database.
+     */
+
+    public String postalCode(){
+        String postalCode = customerPostCodeText.getText();
+
+        if (postalCode.isEmpty() || postalCode.length() > 50) {
+            String error = "Postal Code is invalid.";
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Customer name is invalid");
+            alert.setContentText(error);
+
+            alert.showAndWait();
+        }
+        return postalCode;
+    }
+
+    /** Gets the customer phone text field info from the user and assigns it to a variable to be included in the Customer
+     * object uploaded to the database.
+     * @return
+     */
+    public String customerPhone(){
+        String customerPhone = customerPhoneText.getText();
+
+        if (customerPhone.isEmpty()|| customerPhone.length() > 50) {
+            String error = "Postal Code is invalid.";
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Customer name is invalid");
+            alert.setContentText(error);
+
+            alert.showAndWait();
+        }
+        return customerPhone;
+    }
+
+//    public String createdBy() throws SQLException {
+//        String createdBy =
+
+    public String getCustomerID() throws SQLException {
+        ResultSet customerIDRSA = requests.getCustomerID();
+        int index = 0;
+        while (customerIDRSA.next()) {
+            {
+                customerID = customerIDRSA.getString("Customer_ID");
+                return customerID;
+            }
+        }
+        return customerID;
+    }
+
+
+    public void createCustomer() throws SQLException {
+       // Customer customer = new Customer(getCustomerID(), customerName(), customerAddress(), postalCode(),
+         //       getCustomerID(),  );
+        //customer.setCustomer_ID(Integer.parseInt(getCustomerID()));
+        Statement statement = DBQuery.getStatement();
+        String addCustomer =
+                "INSERT INTO customers(Customer_Name, Address, Postal_Code, Phone, Division_ID) VALUES('" + customerName() + "', " +
+                        "'" + customerAddress() + "' , '" + postalCode() + "' , '" + customerPhone() + "', '" + getSelectedCountryID() +  "' );";
+        statement.execute(addCustomer);
+    }
+
+    @FXML
+    void editClickedCustomer(MouseEvent event) throws SQLException {
+        Customer customer = customerTable.getSelectionModel().getSelectedItem();
+
+
+
+        String customerID = String.valueOf(customer.getCustomer_ID());
+        String customerName = customer.getCustomer_Name();
+        String customerAddress = customer.getAddress();
+        String customerPost = customer.getPostal_Code();
+        String customerPhone = customer.getPhone();
+        customerCountry.setValue(customerSelectedCountry);
+//        customerState.setValue(stateComboBox());
+        customerNameText.setText(customerName);
+        customerIDText.setText(customerID);
+        customerAddressText.setText(customerAddress);
+        customerPostCodeText.setText(customerPost);
+        customerPhoneText.setText(customerPhone);
+    }
+
+
+
     /**
      * First method run on the page
      */
-
     public void initialize() throws SQLException {
         createColumns();
         setTableData();
@@ -351,6 +498,8 @@ public class customerController {
         countryComboBox();
         stateComboBox();
     }
+
+
 
 
 

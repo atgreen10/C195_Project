@@ -85,7 +85,7 @@ public class loginController {
     }
 
     /** Gets the characters entered by the user for the password field*/
-    public String getLoginPasswordInput() {
+    private String getLoginPasswordInput() {
         if (loginPasswordInput.getText().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Login Error");

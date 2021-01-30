@@ -11,6 +11,7 @@ import utils.requests;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class Main extends Application {
     /** creates connection object */
@@ -29,6 +30,9 @@ public class Main extends Application {
 
         /**Starts connection to database */
         conn = DBConnection.startConnection();
+
+        /**Gets statement reference */
+        Statement SQL = DBQuery.getStatement();
 
 
         launch(args);
