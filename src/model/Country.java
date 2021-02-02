@@ -12,6 +12,7 @@ public class Country {
     private Timestamp Last_Update;
     private String Last_Updated_By;
 
+
     public int getCountry_ID() {
         return Country_ID;
     }
@@ -59,4 +60,10 @@ public class Country {
     public void setLast_Updated_By(String last_Updated_By) {
         Last_Updated_By = last_Updated_By;
     }
+
+    @Override
+    public String toString(){
+        return (Integer.toString(Country_ID) + ". " + Country);
+    }
+
 }

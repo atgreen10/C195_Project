@@ -1,9 +1,6 @@
 package utils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DBConnection {
 
@@ -37,6 +34,24 @@ public class DBConnection {
         }
 
         return conn;
+    }
+
+    public static void closeAll(Statement stmt, ResultSet resultSet, Connection con) {
+        try {
+            if (resultSet != null)
+                resultSet.close();
+        } catch (SQLException ignored) {
+        }
+        try {
+            if (stmt != null)
+                stmt.close();
+        } catch (SQLException ignored) {
+        }
+        try {
+            if (con != null)
+                con.close();
+        } catch (SQLException ignored) {
+        }
     }
 
     /** Closes connection with database */

@@ -87,4 +87,10 @@ public class First_Level_Division {
     public void setCountry_ID(int country_ID) {
         this.country_ID = country_ID;
     }
+    @Override
+    public String toString(){
+        return division;
+    }
+
+
 }

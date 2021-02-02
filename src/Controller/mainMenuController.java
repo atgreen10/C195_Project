@@ -56,7 +56,7 @@ public class mainMenuController {
         stage.show();
 
 
-    }
+                                                                    }
 
     /** Exits the application when clicked */
     @FXML
