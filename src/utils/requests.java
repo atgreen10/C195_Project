@@ -168,5 +168,40 @@ public class requests {
         }
         return custID;
     }
+      public static ObservableList<Appointment> getAppointments(){
+        ObservableList<Appointment> appointmentList = null;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet result = null;
+        try {
+            conn = DBConnection.startConnection();
+            appointmentList = observableArrayList();
+            String request = "SELECT * FROM Appointments";
+            DBQuery.setPreparedStatement(conn, request);
+            ps = DBQuery.getPreparedStatement();
+            result = ps.executeQuery();
+            while(result.next()){
+                Appointment appointment = new Appointment();
+                appointment.setAppointmentID(result.getInt("Appointment_ID"));
+                appointment.setTitle(result.getString("Title"));
+                appointment.setDescription(result.getString("Description"));
+                appointment.setLocation(result.getString("Location"));
+                appointment.setApptType(result.getString("Type"));
+                appointment.setStartDateTime(result.getTime("Start"));
+                appointment.setEndDateTime(result.getTime("End"));
+
+                appointmentList.add(appointment);
+            }
+        }
+        catch(SQLException e) {
+            e.printStackTrace();
+        }
+        finally{
+            DBConnection.closeAll(ps, result, conn);
+
+
+        }
+
+    }
 
 }
