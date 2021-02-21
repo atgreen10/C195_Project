@@ -1,5 +1,6 @@
 package Controller;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,11 +14,14 @@ import javafx.stage.Stage;
 import model.Country;
 import model.Customer;
 import model.First_Level_Division;
-import utils.DBQuery;
+import model.User;
 import utils.requests;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -29,15 +33,22 @@ public class customerController {
 
     Stage stage;
     Parent scene;
-    private final ResultSet customerRS = new requests().getCustomerData();
-    private final ResultSet customerIDNum = requests.getCustomerID();
-    Country selectedCountry;
 
-    ObservableList <First_Level_Division> states = null;
+
+    /** Connection to Database should actually be closed once the SQL query is completed, this is not good practice.*/
+    private final ResultSet customerRS = new requests().getCustomerData();
+
+    Country selectedCountry;
+    Boolean isNewCustomer = true;
+    Boolean isSelected = false;
+
+    ObservableList<Customer> customers = observableArrayList();
+    ObservableList<First_Level_Division> states = null;
     ObservableList<Country> country = null;
-    ObservableList<String> customerID = observableArrayList();
-    Map<String, ObservableList<First_Level_Division>> countryStateMap = new HashMap<>();
+    Map<Country, ObservableList<First_Level_Division>> countryStateMap = new HashMap<>();
     Map<String, Integer> countryIDMap = new HashMap<>();
+    Map<Integer, First_Level_Division> divisionIDtoStates = new HashMap<>();
+    Map<First_Level_Division, Country> stateToCountry = new HashMap<>();
 
 
     @FXML
@@ -109,17 +120,26 @@ public class customerController {
 
     @FXML
     void customerCountryHandler(ActionEvent event) {
-        getSelectedCountryStates();
+        customerState.setItems(getSelectedCountryStates());
     }
 
 
     @FXML
-    void customerStateHandler(MouseEvent event) throws SQLException {
+    void customerStateHandler(ActionEvent event) {
     }
 
+    /**
+     * checks if the customer is already added to the database and either creates a new customer or edits an
+     * existing customer account.
+     */
     @FXML
-    void submitBtnHandler(MouseEvent event) throws SQLException, IOException {
-        createCustomer();
+    void submitBtnHandler(MouseEvent event) throws IOException {
+        if (isNewCustomer) {
+            customers.add(createCustomer());
+            requests.setNewCustomer(createCustomer());
+        } else {
+            requests.updateCustomer(editCustomer());
+        }
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
         scene = FXMLLoader.load(getClass().getResource("/View/mainMenu.fxml"));
@@ -215,7 +235,7 @@ public class customerController {
     /**
      * assigns the data from the database to the table in the GUI
      */
-    private void setTableData() throws SQLException {
+    private void setTableData() {
         for (int i = 0; i < customerTable.getColumns().size(); i++) {
             TableColumn col = customerTable.getColumns().get(i);
             switch (i) {
@@ -251,78 +271,59 @@ public class customerController {
                     break;
             }
         }
-        customerTable.setItems(getCustomer());
+        customerTable.setItems(requests.getAllCustomers());
     }
 
     /**
-     * puts the data in observable list to be able to be displayed in GUI
-     */
-    private ObservableList<Customer> getCustomer() {
-        ObservableList<Customer> customers = observableArrayList();
-        int index = 0;
-        //  while (true) {
-        try {
-            while (customerRS.next()) {
-                customers.add(new Customer(customerRS.getInt("customer_ID"), customerRS.getString("customer_Name"), customerRS.getString(
-                        "address"), customerRS.getString("Postal_Code"), customerRS.getString("phone"), customerRS.getDate(
-                        "Create_Date"), customerRS.getString("Created_By"), customerRS.getTimestamp("Last_Update"), customerRS.getString("Last_Updated_By"), customerRS.getInt("Division_ID")));
-                index++;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return customers;
-    }
-
-
-    /**
-     * Assigns the states retrieved from the DB to the combo box on the GUI
-     */
-    public void stateComboBox() {
-        states = requests.getAllStates();
-        customerState.setItems(states);
-    }
-
-
+     * puts the data in observable list to be able to be displayed in
 
     /**
      * Sets up the combo box for listed countries
      */
-    public void countryComboBox(){
-        country = requests.getCountry();
-        for (Country country1 : country) {
-            countryIDMap.put(country1.getCountry(), country1.getCountry_ID());
-        }
-        customerCountry.setItems(country);
+    public void countryComboBox() {
+        ObservableList <Country> countries = FXCollections.observableArrayList();
+        countries.addAll(countryStateMap.keySet());
+        customerCountry.setItems(countries);
+
+        /** lambda takes country objects and gets their country_ID for comparison and returns a specific integer
+         * based on whether it is more or less than the country being compared to in order to implement a way to
+         * order the values within the list because sets are unordered */
+        countries.sort((o1, o2) -> {
+            if (o1.getCountry_ID() == o2.getCountry_ID())
+                return 0;
+            else if (o1.getCountry_ID() < o2.getCountry_ID()) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
 
     }
 
     /**
-     * Maps the state options to their respective countries and returns the correct states as available options
-     * depending on the country selected.
+     * Maps the state options to their respective countries based on the country ID and returns the correct states as
+     * available options
      */
     public ObservableList<First_Level_Division> getSelectedCountryStates() {
         selectedCountry = customerCountry.getSelectionModel().getSelectedItem();
-        ObservableList<First_Level_Division> states = null;
-        ObservableList <First_Level_Division> state = null;
-        if(selectedCountry == null){
-            state = observableArrayList();
-            return state;
-        }
-        if (countryStateMap.containsKey(selectedCountry.getCountry())) {
-            states = countryStateMap.get(selectedCountry.getCountry());
-            return (states);
-        } else {
-            states = requests.getStates(selectedCountry.getCountry_ID());
-            countryStateMap.put(selectedCountry.getCountry(), states);
-        }
-        System.out.println("This is states: " + states);
-        customerState.setItems(states);
-        return states;
+        return countryStateMap.get(selectedCountry);
     }
 
+    public void populatesCountryAndState() {
+        for (Country c : requests.getCountry()) {
+           ObservableList<First_Level_Division> states = requests.getStates(c.getCountry_ID());
+            countryStateMap.put(c, states);
+            for(First_Level_Division state : states){
+                divisionIDtoStates.put(state.getDivision_ID(), state);
+                stateToCountry.put(state, c);
+            }
+        }
+    }
 
-    public String customerName() throws SQLException {
+    /**
+     * gets customer name and performs checks on input submissions.
+     */
+    public String customerName() {
         String customerName = customerNameText.getText();
 
         if (customerName.isEmpty() || customerName.length() > 50) {
@@ -396,55 +397,65 @@ public class customerController {
         return customerPhone;
     }
 
-//    public String createdBy() throws SQLException {
-//        String createdBy =
-
-    public String getCustomerID() throws SQLException {
-        while (customerIDNum.next()) {
-            {
-                customerID.add(String.valueOf(customerIDNum));
-            }
-        }
-        return String.valueOf(customerID);
+    /**
+     * Creates a new customer object and assigns the information to its respective categories.
+     */
+    public Customer createCustomer(){
+ //       String customerCreatedBy = User.getUserName();
+        isNewCustomer = true;
+        Customer customer = new Customer();
+        customer.setCustomer_Name(customerName());
+        customer.setAddress(customerAddress());
+        customer.setPostal_Code(postalCode());
+        customer.setCustomer_Phone(customerPhone());
+        customer.setDivision_ID(customerState.getSelectionModel().getSelectedItem().getDivision_ID());
+//        customer.setCreated_By(customerCreatedBy);
+ //       customer.setLast_Updated_By(User.getUserName());
+        return customer;
     }
 
-    public void createCustomer() throws SQLException {
-        // Customer customer = new Customer(getCustomerID(), customerName(), customerAddress(), postalCode(),
-        //customer.setCustomer_ID(Integer.parseInt(getCustomerID()));
-        Statement statement = DBQuery.getStatement();
-        String addCustomer =
-                "INSERT INTO customers(Customer_ID, Customer_Name, Address, Postal_Code, Phone, Division_ID) VALUES" +
-                        "('" + getCustomerID() + ",'" + customerName() + "', " +
-                        "'" + customerAddress() + "' , '" + postalCode() + "' , '" + customerPhone() + "', '" + getSelectedCountryStates() + "' );";
-        statement.execute(addCustomer);
-    }
-
-    public void getDivisionID() {
-
-    }
-
-
+    /**
+     * Populates the customer information on a previously created customer object.
+     */
     @FXML
-    void editClickedCustomer(MouseEvent mouseEvent) throws SQLException {
+    public void existingCustomerInfo() {
         Customer customer = customerTable.getSelectionModel().getSelectedItem();
-       Country selectCountry = selectedCountry;
+        First_Level_Division state = divisionIDtoStates.get(customer.getDivision_ID());
 
-        String customerID = String.valueOf(customer.getCustomer_ID());
-        String customerName = customer.getCustomer_Name();
-        String customerAddress = customer.getAddress();
-        String customerPost = customer.getPostal_Code();
-        String customerPhone = customer.getPhone();
-        customerCountry.setValue(selectedCountry);
-//      customerState.setValue();
-        customerNameText.setText(customerName);
-        customerIDText.setText(customerID);
-        customerAddressText.setText(customerAddress);
-        customerPostCodeText.setText(customerPost);
-        customerPhoneText.setText(customerPhone);
+            isNewCustomer = false;
+            customerState.setValue(state);
+            customerNameText.setText(customer.getCustomer_Name());
+            customerPhoneText.setText(customer.getPhone());
+            customerAddressText.setText(customer.getAddress());
+            customerPostCodeText.setText(customer.getPostal_Code());
+            customerCountry.getSelectionModel().select(stateToCountry.get(state));
+            customerState.getSelectionModel().select(state);
+            System.out.println(customerCountry.getItems().size());
+        }
+
+    /**
+     * makes updates to already existing customer object.
+     */
+    public Customer editCustomer() {
+        Customer customer = customerTable.getSelectionModel().getSelectedItem();
+        customer.setCustomer_Name(customerNameText.getText());
+        customer.setCustomer_Phone(customerPhoneText.getText());
+        customer.setAddress(customerAddressText.getText());
+        customer.setPostal_Code(customerPostCodeText.getText());
+      //  customer.setCreated_By(customer.getCreated_By());
+ //       customer.setLast_Updated_By(User.getUserName());
+        customer.setDivision_ID(customer.getDivision_ID());
+
+        return customer;
     }
 
+    /**
+     * Clears selected customer info from textfields
+     */
     @FXML
     void clearBtnHandler(MouseEvent event) {
+        customerTable.getSelectionModel().clearSelection();
+        isNewCustomer = true;
         customerNameText.clear();
         customerPhoneText.clear();
         customerPostCodeText.clear();
@@ -455,16 +466,11 @@ public class customerController {
     }
 
 
-
-        /**
-         * First method run on the page
-         */
-    public void initialize() throws SQLException {
+    public void initialize() {
         createColumns();
         setTableData();
+        populatesCountryAndState();
         countryComboBox();
-        stateComboBox();
-
     }
 
 

@@ -21,9 +21,9 @@ public class Customer {
     private String last_Updated_By;
     private int division_ID;
 
+    /**Default constructor for customer */
     public Customer(){
-
-    };
+    }
 
     /** constructor for Customer object */
     public Customer(int customer_ID, String customer_Name, String address, String postal_Code,

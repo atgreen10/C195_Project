@@ -26,7 +26,9 @@ public class mainMenuController {
     @FXML
     private Button exitBtn;
 
-    /** Takes user to the appointment page when selected */
+    /**
+     * Takes user to the appointment page when selected
+     */
     @FXML
     void appointmentBtnHandler(MouseEvent event) throws IOException {
 
@@ -42,7 +44,9 @@ public class mainMenuController {
 
     }
 
-    /** Takes you to the customer page when the button is clicked */
+    /**
+     * Takes you to the customer page when the button is clicked
+     */
     @FXML
     void customerBtnHandler(MouseEvent event) throws IOException {
 
@@ -54,18 +58,20 @@ public class mainMenuController {
         Parent scene = loader.getRoot();
         stage.setScene(new Scene(scene));
         stage.show();
+    }
 
-
-                                                                    }
-
-    /** Exits the application when clicked */
+    /**
+     * Exits the application when clicked
+     */
     @FXML
     void exitBtnHandler(MouseEvent event) {
         System.exit(1);
 
     }
 
-    /** Takes user to the reports page when clicked */
+    /**
+     * Takes user to the reports page when clicked
+     */
     @FXML
     void reportBtnHandler(MouseEvent event) throws IOException {
 
@@ -81,4 +87,6 @@ public class mainMenuController {
 
     }
 
+
 }
+
