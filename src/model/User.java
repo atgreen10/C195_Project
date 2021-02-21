@@ -4,9 +4,18 @@ package model;
 
 public class User {
 
+
+
     private int userID;
     private String userName;
-    private String password;
+    private static String password;
+
+    public User (String userName, String password){
+
+    }
+
+    public User(){
+    }
 
     public int getUserID() {
         return userID;

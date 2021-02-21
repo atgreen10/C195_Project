@@ -18,14 +18,6 @@ public class reportsController {
 
     @FXML
     void backBtnHandler(MouseEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));
-        loader.load();
-
-        stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-        Parent scene = loader.getRoot();
-        stage.setScene(new Scene(scene));
-        stage.show();
 
     }
 

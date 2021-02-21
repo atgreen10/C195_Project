@@ -19,8 +19,8 @@
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
-      <TableView fx:id="customerTable" layoutX="21.0" layoutY="99.0" onMouseClicked="#editClickedCustomer" prefHeight="300.0" prefWidth="802.0" />
-      <Button fx:id="submitBtn" layoutX="359.0" layoutY="758.0" mnemonicParsing="false" onMouseClicked="#submitBtnHandler" prefHeight="32.0" prefWidth="79.0" text="Submit" />
+      <TableView fx:id="customerTable" layoutX="21.0" layoutY="99.0" onMouseClicked="#existingCustomerInfo" prefHeight="300.0" prefWidth="802.0" />
+      <Button fx:id="submitBtn" layoutX="242.0" layoutY="757.0" mnemonicParsing="false" onMouseClicked="#submitBtnHandler" prefHeight="32.0" prefWidth="79.0" text="Submit" />
       <Label layoutX="321.0" layoutY="425.0" text="New Customer Info">
          <font>
             <Font name="System Bold" size="22.0" />
@@ -117,19 +117,6 @@
                         <TextField fx:id="customerPhoneText" prefHeight="25.0" prefWidth="251.0" />
                      </children>
                   </HBox>
-                  <HBox alignment="TOP_RIGHT" prefHeight="36.0" prefWidth="316.0">
-                     <children>
-                        <Label prefHeight="17.0" prefWidth="62.0" text="State">
-                           <HBox.margin>
-                              <Insets right="75.0" />
-                           </HBox.margin>
-                        </Label>
-                        <ComboBox fx:id="customerState" onMouseClicked="#customerStateHandler" prefHeight="25.0" prefWidth="175.0" promptText="Select a location" />
-                     </children>
-                     <VBox.margin>
-                        <Insets bottom="20.0" />
-                     </VBox.margin>
-                  </HBox>
                   <HBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="174.0" prefHeight="36.0" prefWidth="316.0">
                      <children>
                         <Label prefHeight="17.0" prefWidth="62.0" text="Country">
@@ -139,6 +126,22 @@
                         </Label>
                         <ComboBox fx:id="customerCountry" onAction="#customerCountryHandler" prefHeight="25.0" prefWidth="175.0" promptText="Select a Country" />
                      </children>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="36.0" prefWidth="316.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="62.0" text="State">
+                           <HBox.margin>
+                              <Insets right="75.0" />
+                           </HBox.margin>
+                        </Label>
+                        <ComboBox fx:id="customerState" onAction="#customerStateHandler" prefHeight="25.0" prefWidth="175.0" promptText="Select a location" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
                   </HBox>
                </children>
                <HBox.margin>
@@ -147,5 +150,6 @@
             </VBox>
          </children>
       </HBox>
+      <Button fx:id="clearBtn" layoutX="415.0" layoutY="758.0" mnemonicParsing="false" onMouseClicked="#clearBtnHandler" prefHeight="32.0" prefWidth="79.0" text="Clear fields" />
    </children>
 </AnchorPane>
