@@ -13,7 +13,7 @@
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="245.0" prefWidth="455.0" VBox.vgrow="ALWAYS">
          <children>
             <Button fx:id="loginButton" layoutX="296.0" layoutY="230.0" mnemonicParsing="false" onMouseClicked="#onClickLoginButton" prefHeight="33.0" prefWidth="62.0" text="Login" />
-            <TextField fx:id="loginUsernameInput" layoutX="147.0" layoutY="119.0" promptText="Username" />
+            <TextField fx:id="userNameInput" layoutX="147.0" layoutY="119.0" promptText="Username" />
             <PasswordField fx:id="loginPasswordInput" layoutX="147.0" layoutY="173.0" promptText="Password" />
             <Label layoutX="91.0" layoutY="21.0" prefHeight="63.0" prefWidth="273.0" text="Appointment Scheduler Login" textAlignment="CENTER" wrapText="true">
                <font>

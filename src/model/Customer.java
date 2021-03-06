@@ -45,7 +45,7 @@ public class Customer {
     /** Getters and Setters methods for Customer object */
 
     public int getCustomer_ID() throws SQLException {
-       return customer_ID;
+        return customer_ID;
     }
 
     public void setCustomer_ID(int customer_ID) {

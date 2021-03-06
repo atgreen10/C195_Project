@@ -5,16 +5,15 @@ package model;
 public class User {
 
 
-
     private int userID;
     private String userName;
-    private static String password;
+    private String password;
 
-    public User (String userName, String password){
-
-    }
 
     public User(){
+    }
+
+    public User(String userName, String password){
     }
 
     public int getUserID() {

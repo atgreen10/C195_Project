@@ -61,36 +61,6 @@ public class customerController {
     private TableView<Customer> customerTable;
 
     @FXML
-    private TableColumn<Customer, Integer> customerIDColumn;
-
-    @FXML
-    private TableColumn<Customer, String> customerNameColumn;
-
-    @FXML
-    private TableColumn<Customer, String> customerAddressColumn;
-
-    @FXML
-    private TableColumn<Customer, String> customerPostalCodeColumn;
-
-    @FXML
-    private TableColumn<Customer, String> customerPhoneColumn;
-
-    @FXML
-    private TableColumn<Customer, LocalDate> customerCreateDateColumn;
-
-    @FXML
-    private TableColumn<Customer, String> customerCreatedByColumn;
-
-    @FXML
-    private TableColumn<Customer, Timestamp> customerLastUpdatedColumn;
-
-    @FXML
-    private TableColumn<Customer, String> customerLastUpdatedByColumn;
-
-    @FXML
-    private TableColumn<Customer, Integer> CustomerDivisionIDColumn;
-
-    @FXML
     private Button submitBtn;
 
     @FXML
@@ -177,12 +147,13 @@ public class customerController {
      * Gets information about the table from the Database
      */
     private ResultSetMetaData getMetaData() {
+        ResultSetMetaData meta = null;
         try {
-            return customerRS.getMetaData();
+            meta = customerRS.getMetaData();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return meta;
     }
 
     private int getColumnCount() {
@@ -232,12 +203,12 @@ public class customerController {
         }
     }
 
-    /**
-     * assigns the data from the database to the table in the GUI
-     */
-    private void setTableData() {
-        for (int i = 0; i < customerTable.getColumns().size(); i++) {
-            TableColumn col = customerTable.getColumns().get(i);
+            /**
+             * assigns the data from the database to the table in the GUI
+             */
+            private void setTableData() {
+                for (int i = 0; i < customerTable.getColumns().size(); i++) {
+                    TableColumn col = customerTable.getColumns().get(i);
             switch (i) {
                 case 0:
                     col.setCellValueFactory(new PropertyValueFactory<>("Customer_ID"));
@@ -275,7 +246,7 @@ public class customerController {
     }
 
     /**
-     * puts the data in observable list to be able to be displayed in
+     * puts the data in observable list to be able to be displayed i
 
     /**
      * Sets up the combo box for listed countries

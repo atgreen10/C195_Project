@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -13,15 +12,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="553.0" prefWidth="737.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.appointmentsController">
+<AnchorPane prefHeight="553.0" prefWidth="737.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.appointmentsController">
    <children>
       <Button fx:id="backBtn" layoutX="663.0" layoutY="498.0" mnemonicParsing="false" onMouseClicked="#backBtnHandler" text="&lt;- Back" />
-      <TableView fx:id="apptTableView" layoutX="14.0" layoutY="52.0" prefHeight="155.0" prefWidth="707.0">
-        <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
-        </columns>
-      </TableView>
+      <TableView fx:id="apptTableView" layoutX="14.0" layoutY="52.0" prefHeight="155.0" prefWidth="707.0" />
       <Label alignment="CENTER" layoutX="252.0" layoutY="5.0" prefHeight="44.0" prefWidth="194.0" text="Appointments" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="24.0" />
@@ -80,7 +74,7 @@
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <ComboBox fx:id="apptContactComboBox" onShowing="#contactHandler" prefHeight="25.0" prefWidth="141.0" />
+                  <ComboBox fx:id="apptContactComboBox" onMouseClicked="#contactHandler" prefHeight="25.0" prefWidth="141.0" />
                </children>
                <VBox.margin>
                   <Insets top="15.0" />
@@ -109,13 +103,18 @@
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <DatePicker fx:id="startDatePicker" prefHeight="25.0" prefWidth="118.0" />
+                  <DatePicker fx:id="startDatePicker" onAction="#startDatePickerHandler" prefHeight="25.0" prefWidth="118.0" />
                </children>
             </HBox>
             <HBox layoutX="10.0" layoutY="35.0" prefHeight="29.0" prefWidth="290.0">
                <children>
                   <Label contentDisplay="CENTER" prefHeight="24.0" prefWidth="98.0" text="Start Time" />
-                  <ComboBox fx:id="startTimeComboBox" onShowing="#startTimeHandler" prefHeight="25.0" prefWidth="117.0" />
+                  <ComboBox fx:id="startHourComboBox" onAction="#startHourHandler" prefHeight="25.0" prefWidth="77.0" promptText="Hour" />
+                  <ComboBox fx:id="startMinuteComboBox" layoutX="108.0" layoutY="10.0" onAction="#startMinuteHandler" prefHeight="25.0" prefWidth="77.0" promptText="Minute">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </ComboBox>
                </children>
                <VBox.margin>
                   <Insets top="15.0" />
@@ -128,16 +127,21 @@
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <DatePicker fx:id="endDatePicker" prefHeight="25.0" prefWidth="118.0" />
+                  <DatePicker fx:id="endDatePicker" onAction="#endDatePickerHandler" prefHeight="25.0" prefWidth="118.0" />
                </children>
                <VBox.margin>
                   <Insets top="15.0" />
                </VBox.margin>
             </HBox>
-            <HBox layoutX="10.0" layoutY="93.0" prefHeight="29.0" prefWidth="290.0">
+            <HBox layoutX="10.0" layoutY="93.0" prefHeight="27.0" prefWidth="297.0">
                <children>
                   <Label contentDisplay="CENTER" prefHeight="24.0" prefWidth="98.0" text="End Time" />
-                  <ComboBox fx:id="endTimeComboBox" onShowing="#endTimeHandler" prefHeight="25.0" prefWidth="120.0" />
+                  <ComboBox fx:id="endHourComboBox" onAction="#endHourHandler" prefHeight="25.0" prefWidth="79.0" promptText="Hour" />
+                  <ComboBox fx:id="endMinuteComboBox" layoutX="108.0" layoutY="10.0" onAction="#endMinuteHandler" prefHeight="25.0" prefWidth="79.0" promptText="Minute">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </ComboBox>
                </children>
                <VBox.margin>
                   <Insets top="15.0" />
@@ -168,7 +172,7 @@
             <Font size="24.0" />
          </font>
       </Label>
-      <Button fx:id="bookAptBtn" layoutX="565.0" layoutY="493.0" mnemonicParsing="false" onMouseClicked="#bookAptBtnHandler" prefHeight="35.0" prefWidth="80.0" text="Book Appt." />
+      <Button fx:id="bookAptBtn" layoutX="565.0" layoutY="493.0" mnemonicParsing="false" onAction="#bookAptBtnHandler" prefHeight="35.0" prefWidth="80.0" text="Book Appt." />
       <Button fx:id="deleteApptBtn" layoutX="614.0" layoutY="218.0" mnemonicParsing="false" onMouseClicked="#deleteApptBtnHandler" prefHeight="25.0" prefWidth="98.0" text="Delete Appt." />
    </children>
 </AnchorPane>
