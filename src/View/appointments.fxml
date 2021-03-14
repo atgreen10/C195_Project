@@ -15,7 +15,7 @@
 <AnchorPane prefHeight="553.0" prefWidth="737.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.appointmentsController">
    <children>
       <Button fx:id="backBtn" layoutX="663.0" layoutY="498.0" mnemonicParsing="false" onMouseClicked="#backBtnHandler" text="&lt;- Back" />
-      <TableView fx:id="apptTableView" layoutX="14.0" layoutY="52.0" prefHeight="155.0" prefWidth="707.0" />
+      <TableView fx:id="apptTableView" layoutX="14.0" layoutY="52.0" onMouseClicked="#editAppointment" prefHeight="155.0" prefWidth="707.0" />
       <Label alignment="CENTER" layoutX="252.0" layoutY="5.0" prefHeight="44.0" prefWidth="194.0" text="Appointments" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="24.0" />
@@ -33,7 +33,7 @@
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="apptIDText" disable="true" editable="false" prefHeight="25.0" prefWidth="140.0" />
+                  <TextField fx:id="apptIDText" disable="true" editable="false" prefHeight="25.0" prefWidth="140.0" promptText="Auto Generated" />
                </children>
             </HBox>
             <HBox layoutX="10.0" layoutY="35.0" prefHeight="29.0" prefWidth="290.0">

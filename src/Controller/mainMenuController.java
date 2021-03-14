@@ -40,8 +40,6 @@ public class mainMenuController {
         Parent scene = loader.getRoot();
         stage.setScene(new Scene(scene));
         stage.show();
-
-
     }
 
     /**

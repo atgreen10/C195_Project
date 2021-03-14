@@ -1,34 +1,32 @@
 
 package model;
 
-import utils.requests;
-
-import java.util.HashMap;
-import java.util.Map;
-
 public class Contact {
 
     private String contactID;
-    private static String contactName;
+    private String contactName;
     private String contactEmail;
 
     public Contact() {
 
     }
 
-    public Contact(int contactID, String contactName, String contactEmail) {
+    public Contact(String contactID, String contactName, String contactEmail) {
+        this.contactID = contactID;
+        this.contactName = contactName;
+        this.contactEmail = contactEmail;
 
     }
 
     public String getContactID() {
-        return contactID;
+        return (contactID);
     }
 
-    public void setContactID(String contactID) {
-        this.contactID = contactID;
+    public void setContactID(int contactID) {
+        this.contactID = String.valueOf(contactID);
     }
 
-    public static String getContactName() {
+    public String getContactName() {
         return contactName;
     }
 
@@ -44,8 +42,8 @@ public class Contact {
         this.contactEmail = contactEmail;
     }
 
-//    @Override
-//    public String toString() {
-//        return (Integer.parseInt(contactID) + ". " + contactName);
-//    }
+    @Override
+    public String toString() {
+        return ((contactID) + ". " + contactName);
+    }
 }

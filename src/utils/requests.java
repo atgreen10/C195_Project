@@ -7,36 +7,37 @@ import model.*;
 import java.sql.*;
 import java.time.LocalDateTime;
 
+import static java.sql.Timestamp.valueOf;
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class requests {
 
-    /**queries the database for a userName and pulls its password as a result in order to authenticate logging in the application.
+    /**
+     * queries the database for a userName and pulls its password as a result in order to authenticate logging in the application.
      */
-    public static String validLogin(String userName){
+    public static String validLogin(String userName) {
         String password = null;
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        try{
+        try {
             conn = DBConnection.startConnection();
             String check = "SELECT Password FROM users where User_Name = ?";
             DBQuery.setPreparedStatement(conn, check);
             ps = DBQuery.getPreparedStatement();
             ps.setString(1, userName);
             rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 password = rs.getString("Password");
             }
-            if(!rs.next()){
+            if (!rs.next()) {
                 return password;
             }
-        }
-        catch(SQLException e){ ;
+        } catch (SQLException e) {
+            ;
             e.printStackTrace();
-        }
-        finally{
-            DBConnection.closeAll(ps,rs,conn);
+        } finally {
+            DBConnection.closeAll(ps, rs, conn);
         }
         return password;
     }
@@ -251,8 +252,10 @@ public class requests {
             DBQuery.setPreparedStatement(conn, request);
             ps = DBQuery.getPreparedStatement();
             result = ps.executeQuery();
-            startTime = result.getTimestamp("Start");
-            convertedStartTime = startTime.toLocalDateTime();
+            while (result.next()) {
+                startTime = result.getTimestamp("Start");
+                convertedStartTime = startTime.toLocalDateTime();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -273,8 +276,10 @@ public class requests {
             DBQuery.setPreparedStatement(conn, request);
             ps = DBQuery.getPreparedStatement();
             result = ps.executeQuery();
-            endTime = result.getTimestamp("End");
-            convertedEndTime = endTime.toLocalDateTime();
+            while(result.next()){
+                endTime = result.getTimestamp("End");
+                convertedEndTime = endTime.toLocalDateTime();
+                }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -302,7 +307,7 @@ public class requests {
             result = ps.executeQuery();
             while (result.next()) {
                 Appointment appointment = new Appointment();
-                appointment.setAppointmentID(result.getString("Appointment_ID"));
+                appointment.setAppointmentID(result.getInt("Appointment_ID"));
                 appointment.setTitle(result.getString("Title"));
                 appointment.setDescription(result.getString("Description"));
                 appointment.setLocation(result.getString("Location"));
@@ -311,7 +316,7 @@ public class requests {
                 appointment.setStartDateTime(result.getTimestamp("End").toLocalDateTime());
                 appointment.setCustomerID(result.getString("Customer_ID"));
                 appointment.setUserID(result.getString("User_ID"));
-                appointment.setContact(result.getString("Contact_ID"));
+                appointment.setContactID(result.getInt("Contact_ID"));
 
                 appointmentList.add(appointment);
             }
@@ -323,86 +328,61 @@ public class requests {
         return appointmentList;
     }
 
-    public static ObservableList<String> contactComboBoxInfo() {
-        ObservableList<String> contactinfo = null;
+    public static ObservableList<Contact> contactComboBoxInfo() {
+        ObservableList<Contact> contactInfo = null;
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet result = null;
+        Contact contact = null;
         try {
             conn = DBConnection.startConnection();
-            contactinfo = FXCollections.observableArrayList();
-            String request = "SELECT Contact_ID, Contact_Name FROM contacts";
-            DBQuery.setPreparedStatement(conn, request);
-            ps = DBQuery.getPreparedStatement();
-            result = ps.executeQuery();
-            while (result.next()) {
-                contactinfo.add(result.getString("Contact_ID"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DBConnection.closeAll(ps, result, conn);
-        }
-        return contactinfo;
-    }
-
-    public static ObservableList<Contact> getContacts (String contactID) {
-        ObservableList<Contact> contacts = null;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet result = null;
-        try {
-            conn = DBConnection.startConnection();
-            contacts = observableArrayList();
-            String request = "SELECT Contact_Name, Contact_ID FROM contacts WHERE Contact_ID = ?";
-            DBQuery.setPreparedStatement(conn, request);
-            ps = DBQuery.getPreparedStatement();
-            ps.setString(1, contactID);
-            result = ps.executeQuery();
-            while (result.next()) {
-              Contact contact = new Contact();
-              contact.setContactName(result.getString("Contact_Name"));
-              contact.setContactID(result.getString("Contact_ID"));
-              contacts.add(contact);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DBConnection.closeAll(ps, result, conn);
-        }
-        return contacts;
-    }
-
-    public static ObservableList<Contact> getContacts () {
-        ObservableList<Contact> contacts = null;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet result = null;
-        try {
-            conn = DBConnection.startConnection();
-            contacts = observableArrayList();
+            contactInfo = FXCollections.observableArrayList();
             String request = "SELECT * FROM contacts";
             DBQuery.setPreparedStatement(conn, request);
             ps = DBQuery.getPreparedStatement();
             result = ps.executeQuery();
             while (result.next()) {
-                Contact contact = new Contact();
+                contact = new Contact();
+                contact.setContactID(result.getInt("Contact_ID"));
                 contact.setContactName(result.getString("Contact_Name"));
-                contact.setContactID(result.getString("Contact_ID"));
-                contacts.add(contact);
+                contact.setContactEmail(result.getString("Email"));
+                contactInfo.add(contact);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             DBConnection.closeAll(ps, result, conn);
         }
-        return contacts;
+        return contactInfo;
     }
 
-    public static void createNewAppt(Appointment appointment){
+    public static int contactID() {
+        int contactID = 0;
         Connection conn = null;
         PreparedStatement ps = null;
-        try{
+        ResultSet result = null;
+        Contact contact = null;
+        try {
+            conn = DBConnection.startConnection();
+            String request = "SELECT * FROM contacts";
+            DBQuery.setPreparedStatement(conn, request);
+            ps = DBQuery.getPreparedStatement();
+            result = ps.executeQuery();
+            while (result.next()) {
+                contact.setContactID(result.getInt("Contact_ID"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeAll(ps, result, conn);
+        }
+        return contactID;
+    }
+
+    public static void createNewAppt(Appointment appointment) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
             conn = DBConnection.startConnection();
             String insertAppt = "INSERT INTO appointments(Title, Description, Location, Type, Start, End, Customer_ID, User_ID, Contact_ID) VALUES(?,?,?,?,?,?,?,?,?)";
             DBQuery.setPreparedStatement(conn, insertAppt);
@@ -411,17 +391,41 @@ public class requests {
             ps.setString(2, appointment.getDescription());
             ps.setString(3, appointment.getLocation());
             ps.setString(4, appointment.getApptType());
-            ps.setTimestamp(5, Timestamp.valueOf(appointment.getStartDateTime()));
-            ps.setTimestamp(6, Timestamp.valueOf(appointment.getEndDateTime()));
+            ps.setTimestamp(5, valueOf(appointment.getStartDateTime()));
+            ps.setTimestamp(6, valueOf(appointment.getEndDateTime()));
             ps.setString(7, appointment.getCustomerID());
             ps.setString(8, appointment.getUserID());
-            ps.setString(9, appointment.getContact());
+            ps.setInt(9, appointment.getContactID());
             ps.execute();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBConnection.closeAll(ps, null, conn);
         }
-        finally{
+    }
+
+    public static void updateAppointment(Appointment appointment) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBConnection.startConnection();
+            String updateCustomer = "UPDATE appointments SET Title = ?, Description = ?, Location = ?, Type = ?," +
+                    " Start = ?, End = ?, Customer_ID = ?, User_ID = ? Contact_ID = ? WHERE Appointment_ID = ?;";
+            DBQuery.setPreparedStatement(conn, updateCustomer);
+            ps = DBQuery.getPreparedStatement();
+            ps.setString(1, appointment.getTitle());
+            ps.setString(2, appointment.getDescription());
+            ps.setString(3, appointment.getLocation());
+            ps.setString(4, appointment.getApptType());
+            ps.setTimestamp(5, valueOf(appointment.getStartDateTime()));
+            ps.setTimestamp(6, valueOf(appointment.getEndDateTime()));
+            ps.setInt(7, Integer.parseInt(appointment.getCustomerID()));
+            ps.setInt(8, Integer.parseInt(appointment.getUserID()));
+            ps.setInt(9, appointment.getContactID());
+            ps.execute();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } finally {
             DBConnection.closeAll(ps, null, conn);
         }
     }

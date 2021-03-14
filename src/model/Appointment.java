@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 public class Appointment {
 
-    private String appointmentID;
+    private int appointmentID;
     private String title;
     private String description;
     private String location;
@@ -17,7 +17,7 @@ public class Appointment {
     private LocalTime endTime;
     private String customerID;
     private String userID;
-    private String contact;
+    private int contactID;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
 
@@ -26,17 +26,28 @@ public class Appointment {
 
     ;
 
-    public Appointment(int appointmentID, String title, String description, String location, int contact,
+    public Appointment(int appointmentID, String title, String description, String location, int contactID,
                        String apptType, LocalDateTime startDateTime, LocalDateTime endDateTime, int customerID,
                        int userID) {
+        this.appointmentID = appointmentID;
+        this.title = title;
+        this.description = description;
+        this.location = location;
+        this.contactID = contactID;
+        this.apptType = apptType;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.customerID = String.valueOf(customerID);
+        this.userID = String.valueOf(userID);
+
     }
 
 
-    public String getAppointmentID() {
+    public int getAppointmentID() {
         return appointmentID;
     }
 
-    public void setAppointmentID(String appointmentID) {
+    public void setAppointmentID(int appointmentID) {
         this.appointmentID = appointmentID;
     }
 
@@ -64,12 +75,12 @@ public class Appointment {
         this.location = location;
     }
 
-    public String getContact() {
-        return contact;
+    public int getContactID() {
+        return contactID;
     }
 
-    public void setContact(String contact) {
-        this.contact = contact;
+    public void setContactID(int contactID) {
+        this.contactID = contactID;
     }
 
     public String getApptType() {
@@ -146,6 +157,6 @@ public class Appointment {
 
     @Override
     public String toString() {
-        return (getContact() + ". " + Contact.getContactName());
+        return String.valueOf((getContactID()));
     }
 }
