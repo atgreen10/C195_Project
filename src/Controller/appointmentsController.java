@@ -26,19 +26,23 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 
+import static java.time.ZoneOffset.UTC;
+import static java.time.format.DateTimeFormatter.ofPattern;
+
 public class appointmentsController {
 
     @FXML
-    /** Connection to Database should actually be closed once the SQL query is completed, this is not good practice.*/
+    /** Connection to Database should actually be closed once the SQL query is completed, this is not good practice. */
     private final ResultSet appointmentsRS = requests.getAppointmentList();
     @FXML
     private final ResultSetMetaData metaData = appointmentsRS.getMetaData();
 
+
     private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
-    ObservableList<Integer> startHours = FXCollections.observableArrayList();
-    ObservableList<Integer> startMinutes = FXCollections.observableArrayList();
-    ObservableList<Integer> endHours = FXCollections.observableArrayList();
-    ObservableList<Integer> endMinutes = FXCollections.observableArrayList();
+    ObservableList<String> startHours = FXCollections.observableArrayList();
+    ObservableList<String> startMinutes = FXCollections.observableArrayList();
+    ObservableList<String> endHours = FXCollections.observableArrayList();
+    ObservableList<String> endMinutes = FXCollections.observableArrayList();
     ObservableList<Contact> contacts = requests.contactComboBoxInfo();
     Map<Integer, String> contactIDtoNames = new HashMap<>();
 
@@ -47,24 +51,32 @@ public class appointmentsController {
     Parent scene;
     LocalDate startDate;
     LocalDate endDate;
-    int selectedEndMinute;
-    int selectedEndHour;
-    int selectedStartHour;
-    int selectedStartMinute;
+    String selectedEndMinute;
+    String selectedEndHour;
+    String selectedStartHour;
+    String selectedStartMinute;
     LocalTime totalEndTime;
     LocalTime totalStartTime;
-    LocalDateTime finalStartTime;
-    LocalDateTime finalEndTime;
-    Contact selectedContact;
+    LocalTime startTime;
+    LocalTime endTime;
+    String combinedEndTime;
+    String combinedStartTime;
+    boolean withinBusinessHours;
 
+    LocalTime local = LocalTime.now();
+    ZoneId zoneEST = ZoneId.of("America/New_York");
 
+    LocalTime businessOpening = LocalTime.of(8, 00, 00);
+    LocalTime businessClosing = LocalTime.of(22, 00, 00);
+    ZonedDateTime finalStartEST;
+    ZonedDateTime finalEndEST;
+    ZonedDateTime finalStartLocal;
 
-//    LocalTime timeEST  = LocalTime.of(selectedStartHour, selectedStartMinute);
-//    LocalTime local = LocalTime.now();
-//    ZoneId zoneEST = ZoneId.of("America/New York");
-//    ZonedDateTime estTime = ZonedDateTime.of(startDate, timeEST, zoneEST);
-//    ZoneId localZoneId = ZoneId.of(TimeZone.getDefault().getID());
-
+    DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("HH:mm");
+    DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    ZoneId localZoneId = ZoneId.of(TimeZone.getDefault().getID());
+    ZonedDateTime finalStart;
+    ZonedDateTime finalEnd;
 
     @FXML
     private Button backBtn;
@@ -94,19 +106,19 @@ public class appointmentsController {
     private DatePicker startDatePicker;
 
     @FXML
-    private ComboBox<Integer> startHourComboBox;
+    private ComboBox<String> startHourComboBox;
 
     @FXML
-    private ComboBox<Integer> startMinuteComboBox;
+    private ComboBox<String> startMinuteComboBox;
 
     @FXML
     private DatePicker endDatePicker;
 
     @FXML
-    private ComboBox<Integer> endHourComboBox;
+    private ComboBox<String> endHourComboBox;
 
     @FXML
-    private ComboBox<Integer> endMinuteComboBox;
+    private ComboBox<String> endMinuteComboBox;
 
     @FXML
     private TextField customerIDText;
@@ -120,8 +132,16 @@ public class appointmentsController {
     @FXML
     private Button deleteApptBtn;
 
-    private boolean isNewAppointment;
+    @FXML
+    private RadioButton weekView;
 
+    @FXML
+    private ToggleGroup viewReport;
+
+    @FXML
+    private RadioButton monthView;
+
+    private boolean isNewAppointment;
     public appointmentsController() throws SQLException {
     }
 
@@ -130,11 +150,22 @@ public class appointmentsController {
      * submits a new appointment to the table and database to be saved and have the GUI reflect the changes.
      */
     @FXML
-    void bookAptBtnHandler(ActionEvent event) {
-        finalStartTime();
-        finalEndTime();
+    void bookAptBtnHandler(ActionEvent event) throws IOException {
+    if(isNewAppointment) {
         createAppointment();
-        apptTableView.refresh();
+    }
+    else{
+
+    }
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));
+        loader.load();
+
+        stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+        Parent scene = loader.getRoot();
+        stage.setScene(new Scene(scene));
+        stage.show();
     }
 
     /**
@@ -155,17 +186,12 @@ public class appointmentsController {
         }
     }
 
-    String getSelectedContact(){
-        selectedContact = apptContactComboBox.getSelectionModel().getSelectedItem();
-        System.out.println(selectedContact);
-        return String.valueOf(selectedContact);
-    }
-
     /**
      * takes the selected Appointment and deletes it from the tableview and observable list.
+     * @param event
      */
     @FXML
-    void deleteApptBtnHandler(ActionEvent event) {
+    void deleteApptBtnHandler(MouseEvent event) {
         Appointment selectedAppointment = apptTableView.getSelectionModel().getSelectedItem();
         if (requests.getAppointments().remove(selectedAppointment)) {
             String confirmation = "Are you sure you want to delete this appointment?";
@@ -186,10 +212,9 @@ public class appointmentsController {
         for (int i = 0; i < 60; i += 15) {
             if (i < 10) {
                 minutes = "0" + i;
-                endMinutes.add(Integer.valueOf(minutes));
-            }
-            else {
-                endMinutes.add(i);
+                endMinutes.add(minutes);
+            } else {
+                endMinutes.add(String.valueOf(i));
             }
             endMinuteComboBox.setItems(endMinutes);
         }
@@ -203,52 +228,13 @@ public class appointmentsController {
         for (int i = 0; i < 24; i++) {
             if (i < 10) {
                 hours = "0" + i;
-                endHours.add(Integer.valueOf(hours));
-            }
-            else {
-                endHours.add(i);
+                endHours.add(hours);
+            } else {
+                endHours.add(String.valueOf(i));
             }
             endHourComboBox.setItems(endHours);
         }
     }
-    /**
-     * Gets the value of the selection of the end time hour combo box
-     *
-     * @return
-     */
-    @FXML
-    int endHourHandler(ActionEvent event) {
-        selectedEndHour = endHourComboBox.getSelectionModel().getSelectedItem();
-        System.out.println(selectedEndHour);
-        return selectedEndHour;
-    }
-
-    /**
-     * Gets the value of the selection of the end time minute combo box
-     */
-    @FXML
-    int endMinuteHandler(ActionEvent event) {
-        selectedEndMinute = endMinuteComboBox.getSelectionModel().getSelectedItem();
-        System.out.println(selectedEndMinute);
-        return selectedEndMinute;
-    }
-/** combines the selected hour and minutes to give a localTime object for the ending time of the appointment*/
-    LocalTime combineEndTime() {
-        String combinedEndTime = selectedEndHour + ":" + selectedEndMinute;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-       totalEndTime = LocalTime.parse(combinedEndTime, formatter);
-        System.out.println(totalEndTime);;
-        return totalEndTime;
-    }
-/**Combines the selected hour and minute to give a localTime object for the starting time of the appointment */
-    LocalTime combineStartTime(){
-        String combinedStartTime = selectedStartHour + ":" + selectedStartMinute;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        totalStartTime = LocalTime.parse(combinedStartTime, formatter);
-        System.out.println(totalStartTime);
-        return totalStartTime;
-    }
-
     /**
      * fills the start time hour combobox with values 1 thry 24 to be able to tell AM times from PM times
      */
@@ -257,10 +243,9 @@ public class appointmentsController {
         for (int i = 0; i < 24; i++) {
             if (i < 10) {
                 hours = "0" + i;
-                startHours.add(Integer.valueOf(hours));
-            }
-            else {
-                startHours.add(i);
+                startHours.add(hours);
+            } else {
+                startHours.add(String.valueOf(i));
             }
             startHourComboBox.setItems(startHours);
         }
@@ -274,71 +259,288 @@ public class appointmentsController {
         for (int i = 0; i < 60; i += 15) {
             if (i < 10) {
                 minutes = "0" + i;
-                startMinutes.add(Integer.valueOf(minutes));
-            }
-            else {
-                startMinutes.add(i);
+                startMinutes.add(minutes);
+            } else {
+                startMinutes.add(String.valueOf(i));
             }
             startMinuteComboBox.setItems(startMinutes);
         }
     }
 
-    /**
-     * Gets the value of the selection of the start time hour combo box
-     */
-    @FXML
-    int startHourHandler(ActionEvent event) {
-        selectedStartHour = startHourComboBox.getSelectionModel().getSelectedItem();
-        System.out.println(selectedStartHour);
-        return selectedStartHour;
-    }
-
-    /**
-     * Gets the value of the selection of the start time minute combo box
-     */
-    @FXML
-    int startMinuteHandler(ActionEvent event) {
-        selectedStartMinute = startMinuteComboBox.getSelectionModel().getSelectedItem();
-        System.out.println(selectedStartMinute);
-        return selectedStartMinute;
-    }
-
-    /**
-     * gets the value of the start date from the datepicker on the GUI
-     */
-    @FXML
-    void startDatePickerHandler(ActionEvent event) {
+    /** gets the start date selection from the combo box */
+    public LocalDate getStartDate(){
         startDate = startDatePicker.getValue();
+        System.out.println("startDate returns: " + startDate);
+        return startDate;
     }
 
-    /**
-     * gets the value of the end date from the datepicker on the GUI
-     */
-    @FXML
-    void endDatePickerHandler(ActionEvent event) {
-        endDate = endDatePicker.getValue();
+//    /** Gets the hour selection from the combo box */
+//    public String getStartHour(){
+//        String startHour = startHourComboBox.getValue();
+//        System.out.println("This is the startHour: " + startHour);
+//        return startHour;
+//    }
+//
+//    /** Gets the minute selection from the combo box */
+//    public String getStartMin(){
+//        String startMin = startMinuteComboBox.getValue();
+//        System.out.println("This is the startMin: " + startMin);
+//        return startMin;
+//    }
+
+    /** Converts the time selection into a LocalTime variable */
+    public LocalTime getStartTime(){
+        String combinedStartTime = startHourComboBox.getValue() + ":" + startMinuteComboBox.getValue();
+        startTime = LocalTime.parse(combinedStartTime, formatTime);
+        System.out.println("getApptStartTime function returns: " + startTime);
+        return startTime;
     }
 
-    /**
-     * Creates the LocalDateTime startTime value needed for conversions to other timezones or to input info to database
-     */
-    LocalDateTime finalStartTime() {
-        finalStartTime = LocalDateTime.of(startDate, combineStartTime());
-        System.out.println("finalStartTime: " + finalStartTime);
-        return finalStartTime;
+    /** Converts the time and date selections into a LocalDateTime variable */
+    public LocalDateTime getStartDateTime(){
+        LocalDateTime startDateTime = LocalDateTime.of(getStartDate(), getStartTime());
+        System.out.println("getStartDateTime returns: " + startDateTime);
+        return startDateTime;
     }
 
-    /**
-     * Creates the LocalDateTime endTime value needed for conversions to other timezones or to input info to database
-     */
-    LocalDateTime finalEndTime() {
-        finalEndTime = LocalDateTime.of(endDate, combineEndTime());
-        System.out.println("finalEndTime: " + finalEndTime);
-        return finalEndTime;
+    ZonedDateTime finalLocalStartTime() {
+        finalStartLocal = ZonedDateTime.of(getStartDateTime(), localZoneId);
+        System.out.println("finalStartLocal variable value: " + finalStartLocal);
+        return finalStartLocal;
     }
+
+    public ZonedDateTime finalStartTimeUTC() {
+        finalStart = finalLocalStartTime().withZoneSameInstant(UTC);
+        System.out.println("startTime IN UTC: " + finalStart);
+        return finalStart;
+    }
+
+    public ZonedDateTime finalStartTimeEST() {
+        finalStartEST = finalStartTimeUTC().withZoneSameInstant(ZoneId.of("America/New_York"));
+        System.out.println("final start time in EST: " + finalStartEST);
+        return finalStartEST;
+    }
+
+    /** gets the end date selection from the combo box */
+    public LocalDate getEndDate() {
+        if (endDatePicker.getValue().isAfter(startDatePicker.getValue())) {
+            endDate = endDatePicker.getValue();
+        } else {
+            String error = "Invalid date. The end date must be after the start date.";
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Date Selection");
+            alert.setHeaderText("Invalid Date");
+            alert.setContentText(error);
+            alert.showAndWait();
+            endDate = null;
+        }
+        return endDate;
+    }
+
+//    /** Gets the end hour selection from the combo box */
+//    public int getEndHour(){
+//        int endHour = Integer.parseInt(endHourComboBox.getValue());
+//        System.out.println("This is the endHour: " + endHour);
+//        return endHour;
+//    }
+//
+//    /** Gets the end minute selection from the combo box */
+//    public int getEndMin(){
+//        int endMin = Integer.parseInt(endMinuteComboBox.getValue());
+//        System.out.println("This is the endMin: " + endMin);
+//        return endMin;
+//    }
+
+    /** Converts the time selection into a LocalTime variable */
+    public LocalTime getEndTime(){
+        String combinedEndTime = (endHourComboBox.getValue() + ":" + endMinuteComboBox.getValue());
+        endTime = LocalTime.parse(combinedEndTime, formatTime);
+        System.out.println("getApptEndTime function returns: " + endTime);
+        return endTime;
+    }
+
+    /** Converts the time and date selections into a LocalDateTime variable */
+    public LocalDateTime endDateTime(){
+        LocalDateTime endDateTime = LocalDateTime.of(getEndDate(), getEndTime());
+        System.out.println("endDateTime returns: " + endDateTime);
+        return endDateTime;
+    }
+
+    ZonedDateTime finalLocalEndTime() {
+        ZonedDateTime finalLocalEnd = ZonedDateTime.of(endDateTime(), localZoneId);
+        System.out.println("finalLocalEndTime variable: " + finalLocalEnd);
+        return finalLocalEnd;
+    }
+
+    public ZonedDateTime finalEndTimeUTC() {
+        finalEnd = finalLocalEndTime().withZoneSameInstant(UTC);
+        System.out.println("EndTime IN UTC: " + finalEnd);
+        return finalEnd;
+    }
+
+    public ZonedDateTime finalEndTimeEST() {
+        finalEndEST = finalEndTimeUTC().withZoneSameInstant(ZoneId.of("America/New_York"));
+        System.out.println("final end time in EST: " + finalEndEST);
+        return finalEndEST;
+    }
+
+    public boolean withinBusinessHours() {
+        withinBusinessHours = !finalStartTimeEST().toLocalTime().isBefore(businessOpening) && !finalEndTimeEST().toLocalTime().isAfter(businessClosing);
+        return withinBusinessHours;
+    }
+
+
+
+    //beginning of edits to the variables dealing with time.
+
+//    /**
+//     * Gets the value of the selection of the end time hour combo box
+//     *
+//     * @return
+//     */
+//    @FXML
+//    String endHourHandler(ActionEvent event) {
+//        selectedEndHour = endHourComboBox.getSelectionModel().getSelectedItem();
+//        return selectedEndHour;
+//    }
+//
+//    /**
+//     * Gets the value of the selection of the end time minute combo box
+//     */
+//    @FXML
+//    String endMinuteHandler(ActionEvent event) {
+//        selectedEndMinute = endMinuteComboBox.getSelectionModel().getSelectedItem();
+//        return selectedEndMinute;
+//    }
+//
+//    /**
+//     * combines the selected hour and minutes to give a localTime object for the ending time of the appointment
+//     */
+//    LocalTime combineEndTime() {
+//        combinedEndTime = selectedEndHour + ":" + selectedEndMinute;
+//        totalEndTime = parseTime(combinedEndTime);
+//        System.out.println("TotalEndTime: " + totalEndTime);
+//        return totalEndTime;
+//    }
+//
+//    /**
+//     * Combines the selected hour and minute to give a localTime object for the starting time of the appointment
+//     */
+//    LocalTime combineStartTime() {
+//        combinedStartTime = selectedStartHour + ":" + selectedStartMinute;
+//        totalStartTime = parseTime(combinedStartTime);
+//        System.out.println("TotalStartTime: " + totalStartTime);
+//        return totalStartTime;
+//    }
+//
+//    LocalTime parseTime(String inputTime){
+//        return LocalTime.parse(inputTime, formatTime);
+//    }
+
+//    /**
+//     * Gets the value of the selection of the start time hour combo box
+//     */
+//    @FXML
+//    String startHourHandler(ActionEvent event) {
+//        selectedStartHour = startHourComboBox.getSelectionModel().getSelectedItem();
+//        return selectedStartHour;
+//    }
+//
+//    /**
+//     * Gets the value of the selection of the start time minute combo box
+//     */
+//    @FXML
+//    String startMinuteHandler(ActionEvent event) {
+//        selectedStartMinute = startMinuteComboBox.getSelectionModel().getSelectedItem();
+//        return selectedStartMinute;
+//    }
+//
+//    /**
+//     * gets the value of the start date from the datepicker on the GUI
+//     */
+//    @FXML
+//    void startDatePickerHandler(ActionEvent event) {
+//        startDate = startDatePicker.getValue();
+//    }
+//
+//    /**
+//     * gets the value of the end date from the datepicker on the GUI
+//     */
+//    @FXML
+//    void endDatePickerHandler(ActionEvent event) {
+//      public ZonedDateTime finalStartTimeEST() {
+////        finalStartEST = finalStartTimeUTC().withZoneSameInstant(ZoneId.of("America/New_York"));
+////        System.out.println("final start time in EST: " + finalStartEST);
+////        return finalStartEST;
+////    }
+//
+//    /**
+//     * Creates the LocalDateTime startTime value needed for conversions to other timezones or to input info to database
+//     */
+//    LocalDateTime finalStartTime() {
+//        startTime = LocalDateTime.of(startDate, combineStartTime());
+//        System.out.println("in localDateTime format the startTime is: " + startTime);
+//        return startTime;
+//    }
+//
+//    ZonedDateTime finalLocalStartTime() {
+//        finalStartLocal = ZonedDateTime.of(startTime, localZoneId);
+//        System.out.println("finalStartLocal variable value: " + finalStartLocal);
+//        return finalStartLocal;
+//    }
+//
+//    /**
+//     * Converts startingTime to UTC
+//     */
+//    public ZonedDateTime finalStartTimeUTC() {
+//        finalStart = finalLocalStartTime().withZoneSameInstant(UTC);
+//        System.out.println("startTime IN UTC: " + finalStart);
+//        return finalStart;
+//    }
+//
+//    /**
+//     * Converts startingTime to EST
+//     */
+//    public ZonedDateTime finalStartTimeEST() {
+//        finalStartEST = finalStartTimeUTC().withZoneSameInstant(ZoneId.of("America/New_York"));
+//        System.out.println("final start time in EST: " + finalStartEST);
+//        return finalStartEST;
+//    }
+//
+//    public boolean withinBusinessHours() {
+//        withinBusinessHours = !finalStartTimeEST().toLocalTime().isBefore(businessOpening) && !finalEndTimeEST().toLocalTime().isAfter(businessClosing);
+//        return withinBusinessHours;
+//    }
+//
+//    /**
+//     * Creates the LocalDateTime endTime value needed for conversions to other timezones or to input info to database
+//     */
+//    LocalDateTime endTime() {
+//      endTime = LocalDateTime.of(endDate, combineEndTime());
+//        return endTime;
+//    }
+//
+//    ZonedDateTime finalLocalEndTime() {
+//        ZonedDateTime finalLocalEnd = ZonedDateTime.of(endTime, localZoneId);
+//        System.out.println("finalLocalEndTime variable: " + finalLocalEnd);
+//        return finalLocalEnd;
+//    }
+//
+//    public ZonedDateTime finalEndTimeUTC() {
+//        finalEnd = finalLocalEndTime().withZoneSameInstant(UTC);
+//        System.out.println("EndTime IN UTC: " + finalEnd);
+//        return finalEnd;
+//    }
+//
+//    public ZonedDateTime finalEndTimeEST() {
+//        finalEndEST = finalEndTimeUTC().withZoneSameInstant(ZoneId.of("America/New_York"));
+//        System.out.println("final end time in EST: " + finalEndEST);
+//        return finalEndEST;
+//    }
 
     /**
      * when back button is clicked, program takes user back to the main page and cancels any changes
+     * @param event
      */
     @FXML
     void backBtnHandler(MouseEvent event) throws IOException {
@@ -399,30 +601,10 @@ public class appointmentsController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        switch (type) {
-            case 1:
-                return new TableColumn<Appointment, Integer>(name);
-            case 4:
-                return new TableColumn<Appointment, String>(name);
-            case 6:
-                return new TableColumn<Appointment, String>(name);
-            case 8:
-                return new TableColumn<Appointment, String>(name);
-            case 12:
-                return new TableColumn<Appointment, String>(name);
-            case 91:
-                return new TableColumn<Appointment, LocalDateTime>(name);
-            case 92:
-                return new TableColumn<Appointment, LocalDateTime>(name);
-            case 93:
-                return new TableColumn<Appointment, Integer>(name);
-            case 94:
-                return new TableColumn<Appointment, Integer>(name);
-            case 98:
-                return new TableColumn<Appointment, Integer>(name);
-            default:
-                return new TableColumn(name);
+        if (type == 1) {
+            return new TableColumn<Appointment, Integer>(name);
         }
+        return new TableColumn(name);
     }
 
     /**
@@ -470,26 +652,43 @@ public class appointmentsController {
     /**
      * creates a mew Appointment object
      */
-    public Appointment createAppointment() {
-        Appointment appointment = new Appointment();;
-        appointment.setTitle(apptTitleText.getText());
-        appointment.setDescription(apptDescriptionText.getText());
-        appointment.setLocation(apptLocationText.getText());
-        appointment.setApptType(apptTypeText.getText());
-        appointment.setStartDate(startDate);
-        appointment.setStartTime(totalStartTime);
-        appointment.setEndDate(endDate);
-        appointment.setEndTime(totalEndTime);
-        appointment.setStartDateTime(finalStartTime());
-        appointment.setEndDateTime(finalEndTime());
-        appointment.setCustomerID(String.valueOf(customerIDText.getText()));
-        appointment.setUserID(String.valueOf(userIDText.getText()));
-        appointment.setContactID(Integer.parseInt(apptContactComboBox.getSelectionModel().getSelectedItem().getContactID()));
+    public void createAppointment() {
+        if (withinBusinessHours()) {
+            Appointment newAppointment = new Appointment();
+            newAppointment.setTitle(apptTitleText.getText());
+            newAppointment.setDescription(apptDescriptionText.getText());
+            newAppointment.setLocation(apptLocationText.getText());
+            newAppointment.setApptType(apptTypeText.getText());
+//            newAppointment.setApptStartDate(getStartDate());
+//            newAppointment.setApptStartTime(getStartTime());
+//            newAppointment.setApptEndDate(getEndDate());
+//            newAppointment.setApptEndTime(getEndTime());
+            newAppointment.setStartDateTime(LocalDateTime.from(finalStartTimeUTC()));
+            newAppointment.setEndDateTime(LocalDateTime.from(finalEndTimeUTC()));
+            newAppointment.setCustomerID(Integer.parseInt(customerIDText.getText()));
+            newAppointment.setUserID(Integer.parseInt(userIDText.getText()));
+            newAppointment.setContactID(Integer.parseInt(apptContactComboBox.getSelectionModel().getSelectedItem().getContactID()));
 
-        appointmentObservableList.add(appointment);
-        apptTableView.setItems(appointmentObservableList);
-        requests.createNewAppt(appointment);
-        return appointment;
+            if (requests.getStartTime().contains(newAppointment.getStartDateTime().toLocalTime()) || requests.getEndTime().contains(newAppointment.getEndDateTime().toLocalTime())) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Appointment overlap");
+                alert.setHeaderText("Appointment overlap");
+                alert.setContentText("Appointment times cannot overlap");
+                alert.showAndWait();
+            }
+            else{
+                appointmentObservableList.add(newAppointment);
+                apptTableView.setItems(appointmentObservableList);
+                requests.createNewAppt(newAppointment);
+            }
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Please select a time that is within business hours.");
+            alert.setHeaderText("Please select a time that is within business hours.");
+            alert.setContentText("Please select a time that is within business hours.");
+            alert.showAndWait();
+        }
     }
 
 
@@ -497,34 +696,54 @@ public class appointmentsController {
      * edits an existing appointment object from the table
      */
     @FXML
-    void editAppointment(MouseEvent event) {
+    void setSelectedAppointment() throws IOException {
         Appointment appointment = apptTableView.getSelectionModel().getSelectedItem();
-        isNewAppointment = false;
+        if (appointment == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("No Appointment Selected");
+            alert.setHeaderText("Please select an appointment to edit.");
+            alert.setContentText("Please select an appointment to edit.");
+            alert.showAndWait();
+            } else {
+            appointment = requests.getSelectedAppointments(appointment);
 
-        apptTitleText.setText(appointment.getTitle());
-        apptDescriptionText.setText(appointment.getDescription());
-        apptLocationText.setText(appointment.getLocation());
-        apptTypeText.setText(appointment.getApptType());
+            apptTitleText.setText(appointment.getTitle());
+            apptDescriptionText.setText(appointment.getDescription());
+            apptLocationText.setText(appointment.getLocation());
 
-        apptContactComboBox.setValue((Contact) getNameFromMap(appointment.getContactID()));
-        startDatePicker.setValue(LocalDate.from(appointment.getStartDateTime()));
-        startHourComboBox.setValue(appointment.getStartDateTime().getHour());
-        startMinuteComboBox.setValue(appointment.getStartDateTime().getMinute());
-        endDatePicker.setValue(LocalDate.from(appointment.getEndDateTime()));
-        endHourComboBox.setValue(appointment.getEndDateTime().getHour());
-        endMinuteComboBox.setValue(appointment.getEndDateTime().getMinute());
+            apptTypeText.setText(appointment.getApptType());
+            apptContactComboBox.setValue((Contact) getNameFromMap(appointment.getContactID()));
+            startDatePicker.setValue(appointment.getStartDateTime().toLocalDate());
+            startHourComboBox.setValue(String.valueOf(appointment.getStartDateTime().getHour()));
+            startMinuteComboBox.setValue(String.valueOf(appointment.getStartDateTime().getMinute()));
+            endDatePicker.setValue(appointment.getEndDateTime().toLocalDate());
+            endHourComboBox.setValue(String.valueOf(appointment.getEndDateTime().getHour()));
+            endMinuteComboBox.setValue(String.valueOf(appointment.getEndDateTime().getMinute()));
+            customerIDText.setText(String.valueOf(appointment.getCustomerID()));
+            userIDText.setText(String.valueOf(appointment.getUserID()));
 
-        customerIDText.setText(String.valueOf(appointment.getCustomerID()));
-        userIDText.setText(String.valueOf(appointment.getUserID()));
+        }
+            requests.updateAppointment(appointment);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));
+            loader.load();
 
-        requests.updateAppointment(appointment);
+            Parent scene = loader.getRoot();
+            stage.setScene((new Scene(scene)));
+            stage.show();
     }
 
-    public void contactMap(Contact c){
+    /**
+     * creates map of contact names and contact Id's
+     */
+    public void contactMap(Contact c) {
         contactIDtoNames.put(Integer.valueOf((c.getContactID())), c.getContactName());
     }
 
-    public Object getNameFromMap(int contactID){
+    /**
+     * allows you to select a contact Name when using the contact ID to refer to the contact.
+     */
+    public Object getNameFromMap(int contactID) {
         return contactIDtoNames.get(contactID);
     }
 

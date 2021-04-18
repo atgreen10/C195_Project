@@ -1,5 +1,6 @@
 package Controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,13 +31,13 @@ public class loginController {
      * Once the login button is pressed it checks the input info and if it clears, the user is taken to the main application page
      */
     @FXML
-    void onClickLoginButton(MouseEvent event) throws IOException {
+    void onClickLoginButton(ActionEvent event) throws IOException {
         if (validateLogin()) {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));
+            loader.getController();
             loader.load();
 
-            loader.getController();
             stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             Parent scene = loader.getRoot();
             stage.setScene(new Scene(scene));
@@ -58,7 +59,7 @@ public class loginController {
      * Gets the characters entered by the user for the userName field
      */
     public String getUserName(){
-        userName = null;
+        String userName = null;
         if (userNameInput.getText().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Login Error");

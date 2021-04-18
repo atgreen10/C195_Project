@@ -22,9 +22,9 @@ public class DBQuery {
     }
 
     /** creates a statement object */
-    public static void setStatement(Connection conn) throws SQLException {
-        statement = conn.createStatement();
-    }
+//    public static void setStatement(Connection conn) throws SQLException {
+//        statement = conn.createStatement();
+//    }
 
     public static Statement getStatement() {
         return statement;

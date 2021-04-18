@@ -11,12 +11,12 @@ public class Appointment {
     private String description;
     private String location;
     private String apptType;
-    private LocalDate startDate;
-    private LocalTime startTime;
-    private LocalDate endDate;
-    private LocalTime endTime;
-    private String customerID;
-    private String userID;
+//    private LocalDate startDate;
+//    private LocalTime startTime;
+//    private LocalDate endDate;
+//    private LocalTime endTime;
+    private int customerID;
+    private int userID;
     private int contactID;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
@@ -37,8 +37,8 @@ public class Appointment {
         this.apptType = apptType;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.customerID = String.valueOf(customerID);
-        this.userID = String.valueOf(userID);
+        this.customerID = customerID;
+        this.userID = userID;
 
     }
 
@@ -91,51 +91,51 @@ public class Appointment {
         this.apptType = apptType;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
+//    public LocalTime getApptStartTime() {
+//        return startTime;
+//    }
+//
+//    public void setApptStartTime(LocalTime startTime) {
+//        this.startTime = startTime;
+//    }
+//
+//    public LocalDate getApptStartDate() {
+//        return startDate;
+//    }
+//
+//    public void setApptStartDate(LocalDate startDate) {
+//        this.startDate = startDate;
+//    }
+//
+//    public LocalTime getApptEndTime() {
+//        return endTime;
+//    }
+//
+//    public void setApptEndTime(LocalTime endTime) {
+//        this.endTime = endTime;
+//    }
+//
+//    public LocalDate getApptEndDate() {
+//        return endDate;
+//    }
+//
+//    public void setApptEndDate(LocalDate endDate) {
+//        this.endDate = endDate;
+//    }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getCustomerID() {
+    public int getCustomerID() {
         return customerID;
     }
 
-    public void setCustomerID(String customerID) {
+    public void setCustomerID(int customerID) {
         this.customerID = customerID;
     }
 
-    public String getUserID() {
+    public int getUserID() {
         return userID;
     }
 
-    public void setUserID(String userID) {
+    public void setUserID(int userID) {
         this.userID = userID;
     }
 
