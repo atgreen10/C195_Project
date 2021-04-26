@@ -1,4 +1,4 @@
-package Controller;
+package controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class mainMenuController {
+public class MainMenuController {
 
     Stage stage;
 
@@ -33,7 +33,7 @@ public class mainMenuController {
     void appointmentBtnHandler(MouseEvent event) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View/appointments.fxml"));
+        loader.setLocation(getClass().getResource("/view/Appointments.fxml"));
         loader.load();
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -49,7 +49,7 @@ public class mainMenuController {
     void customerBtnHandler(MouseEvent event) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View/customers.fxml"));
+        loader.setLocation(getClass().getResource("/view/Customers.fxml"));
         loader.load();
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -74,7 +74,7 @@ public class mainMenuController {
     void reportBtnHandler(MouseEvent event) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View/reports.fxml"));
+        loader.setLocation(getClass().getResource("/view/Reports.fxml"));
         loader.load();
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

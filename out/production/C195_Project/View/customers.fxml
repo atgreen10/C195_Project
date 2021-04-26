@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="829.0" prefWidth="843.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.customerController">
+<AnchorPane prefHeight="829.0" prefWidth="843.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CustomerController">
    <children>
       <Button fx:id="backBtn" layoutX="772.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#backBtnHandler" text="&lt;- Back" />
       <Label alignment="TOP_CENTER" layoutX="321.0" layoutY="30.0" prefHeight="17.0" prefWidth="201.0" text="Customer List" textAlignment="CENTER">

@@ -1,4 +1,4 @@
-package Controller;
+package controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -6,14 +6,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import utils.requests;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class loginController {
+public class LoginController {
 
     Stage stage;
     String userName;
@@ -34,7 +33,7 @@ public class loginController {
     void onClickLoginButton(ActionEvent event) throws IOException {
         if (validateLogin()) {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));
+            loader.setLocation(getClass().getResource("/view/MainMenu.fxml"));
             loader.getController();
             loader.load();
 

@@ -1,4 +1,4 @@
-package Controller;
+package controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class reportsController {
+public class ReportsController {
     Stage stage;
 
     @FXML
@@ -20,7 +20,7 @@ public class reportsController {
     void backBtnHandler(MouseEvent event) throws IOException {
         
              FXMLLoader loader = new FXMLLoader();	
-        loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));	
+        loader.setLocation(getClass().getResource("/view/MainMenu.fxml"));
         loader.load();	
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();	

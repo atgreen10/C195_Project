@@ -18,6 +18,7 @@ public class Appointment {
     private int customerID;
     private int userID;
     private int contactID;
+    private Contact contact;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
 
@@ -158,5 +159,13 @@ public class Appointment {
     @Override
     public String toString() {
         return String.valueOf((getContactID()));
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 }

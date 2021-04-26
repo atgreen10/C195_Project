@@ -1,4 +1,4 @@
-package Controller;
+package controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,7 +14,6 @@ import javafx.stage.Stage;
 import model.Country;
 import model.Customer;
 import model.First_Level_Division;
-import model.User;
 import utils.requests;
 
 import java.io.IOException;
@@ -22,14 +21,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import static javafx.collections.FXCollections.observableArrayList;
 
-public class customerController {
+public class CustomerController {
 
     Stage stage;
     Parent scene;
@@ -85,7 +83,7 @@ public class customerController {
     private ComboBox<Country> customerCountry;
 
 
-    public customerController() throws SQLException {
+    public CustomerController() throws SQLException {
     }
 
     @FXML
@@ -112,7 +110,7 @@ public class customerController {
         }
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("/View/mainMenu.fxml"));
+        scene = FXMLLoader.load(getClass().getResource("/view/MainMenu.fxml"));
         stage.setScene(new Scene(scene));
         stage.show();
     }
@@ -124,7 +122,7 @@ public class customerController {
     @FXML
     void backBtnHandler(MouseEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View/mainMenu.fxml"));
+        loader.setLocation(getClass().getResource("/view/MainMenu.fxml"));
         loader.load();
 
         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

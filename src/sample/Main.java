@@ -14,7 +14,6 @@ import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 public class Main extends Application {
     /**
@@ -24,7 +23,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/View/login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
         primaryStage.setTitle("Scheduling Application");
         primaryStage.setScene(new Scene(root, 455, 303));
         primaryStage.show();
